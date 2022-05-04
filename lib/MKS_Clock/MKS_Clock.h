@@ -5,7 +5,6 @@
 
 class MKS_Clock
 {
-
 public:
   static const int STOPED = 0;
   static const int PAUSED = 1;
