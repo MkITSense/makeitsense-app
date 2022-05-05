@@ -28,7 +28,7 @@ void MKS_Wifi::start(String chipId, MKS_Display display) {
          connected = true;
      }
 
-     return  MKS_WifiState(_chipId, rssi, connected);
+     return  MKS_WifiState(rssi, connected);
 }
 
 void MKS_Wifi::_updateDisplay(String msg) {

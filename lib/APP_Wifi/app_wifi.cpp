@@ -6,7 +6,7 @@
 String chipId;
 MKS_Display display;
 MKS_Wifi wifi;
-MKS_WifiState wifiState("*", 0, false);
+MKS_WifiState wifiState(0, false);
 
 void updateDisplay() {
   display.clear();
