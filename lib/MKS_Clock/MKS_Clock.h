@@ -17,6 +17,7 @@ public:
   bool isStoped();
   bool isStarted();
   float getMinutes();
+  float getSeconds();
   String getCurrentTime();
 
 private:

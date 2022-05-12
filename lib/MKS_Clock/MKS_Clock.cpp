@@ -52,6 +52,16 @@ float MKS_Clock::getMinutes()
   return (_currentMinutes - _startMilSec) / 60000;
 }
 
+float MKS_Clock::getSeconds()
+{
+  if (isStoped() == false)
+  {
+    _currentMinutes = millis();
+  }
+
+  return (_currentMinutes - _startMilSec) / 1000;
+}
+
 String MKS_Clock::getCurrentTime()
 {
   if (isStoped() == false)
