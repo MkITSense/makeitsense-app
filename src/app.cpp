@@ -1,169 +1,63 @@
-#include "Arduino.h"
-#include <WiFiManager.h>
-#include <MKS_Display.h>
-#include <PubSubClient.h>
-#include <MKS_Clock.h>
+#include <ESP8266WiFi.h>
+#include <espnow.h>
+#include "MksMe007DistanceReader.h"
+#include "MksClock.h"
+#include "MksNowSender.h"
 
-// Generar purpose
-String chipId;
-MKS_Display display;
-WiFiManager wifiManager;
+MksMe007DistanceReader distanceReader(5, 13, 4);
+MksClock distanceReaderClock;
 
-// MQTT
-WiFiClient mqttWifiClient;
-PubSubClient mqttClient(mqttWifiClient);
-const char* PUB_TOPIC = "testTopic";
-const char* SUB_TOPIC = "";
-const char* MQTT_SERVER = "192.168.4.1";
-String mqttLastMsgReceived = "";
-char mqttLastMsgSent[50];
-char mqttMsg[50];
-int mqttValue = 0;
-MKS_Clock mqttClock;
-MKS_Clock mqttClockLastSent;
-MKS_Clock mqttClockLastReceived;
+// REPLACE WITH RECEIVER MAC Address
+uint8_t broadcastAddress2[] = {0x24, 0x6F, 0x28, 0x44, 0xE6, 0xB8}; // ESP32
+uint8_t broadcastAddress[] = {0x5C, 0xCF, 0x7F, 0x8C, 0x8D, 0xAE}; 
 
 
-char* getAsCharArray(String value) {
-  char cValue[value.length()+1];
-  value.toCharArray(cValue, value.length());
-  return cValue;
-}
+MksNowSender sender(broadcastAddress2);
+MksNowSender::Message myData;
 
-String getWifiStatus() {
-  if(WiFi.status() == WL_CONNECTED) {
-    int rssi = WiFi.RSSI();
-    return "WIFI: " + String(rssi);
+
+// Callback when data is sent
+void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
+  Serial.print("Last Packet Send Status: ");
+  if (sendStatus == 0){
+    Serial.println("Delivery success");
   }
-  
-  return  "WIFI: ---";
-}
-
-String getMqttStatus() {
-  if(!mqttClient.connected()) {
-    return "MQTT: ---";
-  }
-
-  return "MQTT: OK";
-}
-
-void updateMqttMessages() {
-  if(mqttClockLastReceived.getSeconds() > 3) {
-    mqttLastMsgReceived = "";
-    mqttClockLastReceived.pause();
-  }
-
-    if(mqttClockLastSent.getSeconds() > 3) {
-    strcpy(mqttLastMsgSent, "");
-    mqttClockLastSent.pause();
+  else{
+    Serial.println("Delivery fail");
   }
 }
-
-void updateDisplay() {
-  updateMqttMessages();
-  display.clear();
-  display.print(chipId, 1, 1);
-  display.print("[R] " + mqttLastMsgReceived, 2, 1);
-  display.print("[S] " + String(mqttLastMsgSent), 3, 1);
-  display.print(getWifiStatus() + " " + getMqttStatus(), 4, 1);
-  display.updateProgressBar();
-  display.show();
-}
-
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  String sPayload = String((char *)payload);
-  mqttLastMsgReceived = sPayload.substring(0, length);
-
-  mqttClockLastReceived.start();
-  updateDisplay();
-  delay(500);
-}
-
-void mqttPub() {
-  if(mqttClock.getSeconds() > 2) {
-    ++mqttValue;
-    if(mqttValue > 100) {
-      mqttValue = 0;
-    }
-
-    String sValue = String(mqttValue);
-    sValue.toCharArray(mqttLastMsgSent, sValue.length() + 1);
-    mqttClient.publish(PUB_TOPIC, mqttLastMsgSent);
-    mqttClockLastSent.start();
-    updateDisplay();
-    mqttClock.start();
-  }
-}
-
-void mqttSub() {
-  if(String(SUB_TOPIC) != "") {
-    mqttClient.subscribe(SUB_TOPIC);
-  }
-}
-
-void mqttReconnect() {
-  updateDisplay();
-
-  while (!mqttClient.connected()) {
-    updateDisplay();
-    
-    char charBuf[chipId.length()];
-    chipId.toCharArray(charBuf, chipId.length());
-    
-    if (mqttClient.connect(charBuf)) {
-      mqttClock.start();
-      mqttSub();
-      updateDisplay();
-    } 
-    else {
-      updateDisplay();
-      delay(5000);
-    }
-  }
-  updateDisplay();
-}
-
+ 
 void setup() {
-  Serial.begin(9600);
-  chipId = "MKIT-" + String(ESP.getChipId());
-  WiFi.begin("R2D2-IoT", "carlo$2005");             
-  display.start();
-  updateDisplay();
+  // Init Serial Monitor
+  Serial.begin(115200);
 
-  wifiManager.setTimeout(120);
+  // Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
 
-  if(!wifiManager.autoConnect(getAsCharArray(chipId))) {
-    updateDisplay();
-    ESP.reset();
-    delay(1000);
-  }
-    
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
-
-  updateDisplay();
+   myData.b = 0;
   
-  mqttClient.setServer(MQTT_SERVER, 1883);
-  mqttClient.setCallback(mqttCallback);
-
-  mqttSub();
-  mqttClock.start();
+  sender.start(OnDataSent);
+  distanceReaderClock.start();
 }
-
+ 
 void loop() {
 
-  if (!mqttClient.connected()) {
-    mqttReconnect();
+  if(distanceReaderClock.getSeconds() >= 2) {
+    MksMe007DistanceReader::Reading distanceReading = distanceReader.getReading();
+    distanceReaderClock.start();
+
+     // Set values to send
+    strcpy(myData.a, "THIS IS A CHAR");
+    myData.b = myData.b + 1;
+    myData.c = 1.2;
+    myData.d = "Hello";
+    myData.e = false;
+
+    if(myData.b >= 10) {
+      myData.b = 0;
+    }
+
+    sender.send(myData);
   }
 
-  mqttClient.loop();
-
-  updateDisplay();
-
-
-  if(PUB_TOPIC != "") {
-    mqttPub();
-  }
-
-  delay(500);
 }

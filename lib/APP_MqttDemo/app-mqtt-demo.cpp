@@ -126,7 +126,8 @@ void mqttReconnect() {
 void setup() {
   Serial.begin(9600);
   chipId = "MKIT-" + String(ESP.getChipId());
-  WiFi.begin("R2D2-IoT", "carlo$2005");             
+  WiFi.begin("R2D2-IoT", "carlo$2005"); 
+  WiFi.setOutputPower(20.5);            
   display.start();
   updateDisplay();
 
