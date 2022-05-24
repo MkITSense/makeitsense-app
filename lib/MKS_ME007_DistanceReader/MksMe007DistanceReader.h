@@ -31,7 +31,7 @@ class MksMe007DistanceReader {
 
             _pingSensor();
             _pingSensor();
-        
+         
             do{ 
                 for (int j = 0; j <= 5; j++){
                     col = mySerial.read();
@@ -79,7 +79,7 @@ class MksMe007DistanceReader {
             Reading reading;
             reading.distance = Rage;
             reading.temperature = Temp;
-            digitalWrite(TRIGGER_PIN, LOW);
+       
             return reading;
         }
 

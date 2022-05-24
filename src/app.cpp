@@ -57,6 +57,7 @@ void loop() {
       myData.b = 0;
     }
 
+    myData.b = distanceReading.distance;
     sender.send(myData);
   }
 
