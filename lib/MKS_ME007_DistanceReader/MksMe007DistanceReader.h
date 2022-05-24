@@ -18,6 +18,32 @@ class MksMe007DistanceReader {
         }
 
         Reading getReading() {
+            Reading reading;
+            int attempts = 10;
+
+            do {
+                delay(50);
+                reading = _readSensor();
+                attempts--;
+                Serial.println("attempt " + String(attempts));
+            } while(attempts >= 0 && reading.distance == 0);
+
+            return reading;          
+        }
+
+    private:
+
+        void _pingSensor() {
+            digitalWrite(TRIGGER_PIN, HIGH);
+    
+            digitalWrite(TRIGGER_PIN, HIGH);
+            delay(100); 
+            digitalWrite(TRIGGER_PIN, LOW);
+            delay(4);
+            digitalWrite(TRIGGER_PIN, HIGH);
+        } 
+
+        Reading _readSensor() {
             SoftwareSerial mySerial(RX_PIN, TX_PIN); // RX, TX
             char col;
             unsigned char buffer_RTT[6] = {};
@@ -82,16 +108,4 @@ class MksMe007DistanceReader {
        
             return reading;
         }
-
-    private:
-
-        void _pingSensor() {
-            digitalWrite(TRIGGER_PIN, HIGH);
-    
-            digitalWrite(TRIGGER_PIN, HIGH);
-            delay(100); 
-            digitalWrite(TRIGGER_PIN, LOW);
-            delay(4);
-            digitalWrite(TRIGGER_PIN, HIGH);
-        } 
 };
