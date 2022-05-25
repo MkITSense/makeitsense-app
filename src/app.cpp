@@ -3,18 +3,16 @@
 #include "MksMe007DistanceReader.h"
 #include "MksClock.h"
 #include "MksNowSender.h"
+#include "MksMessage.h"
 
-MksMe007DistanceReader distanceReader(5, 13, 4);
+MksMe007DistanceReader distanceReader(5, 13, true);
 MksClock distanceReaderClock;
 
 // REPLACE WITH RECEIVER MAC Address
-uint8_t broadcastAddress2[] = {0x24, 0x6F, 0x28, 0x44, 0xE6, 0xB8}; // ESP32
-uint8_t broadcastAddress[] = {0x5C, 0xCF, 0x7F, 0x8C, 0x8D, 0xAE}; 
+uint8_t receiverAddress[] = {0x24, 0x6F, 0x28, 0x44, 0xE6, 0xB8}; // ESP32 LilyGo
 
-
-MksNowSender sender(broadcastAddress2);
-MksNowSender::Message myData;
-
+MksNowSender sender(receiverAddress);
+MksMessage message;
 
 // Callback when data is sent
 void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
@@ -34,8 +32,6 @@ void setup() {
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
-   myData.b = 0;
-  
   sender.start(OnDataSent);
   distanceReaderClock.start();
 }
@@ -46,19 +42,15 @@ void loop() {
     MksMe007DistanceReader::Reading distanceReading = distanceReader.getReading();
     distanceReaderClock.start();
 
-     // Set values to send
-    strcpy(myData.a, "THIS IS A CHAR");
-    myData.b = myData.b + 1;
-    myData.c = 1.2;
-    myData.d = "Hello";
-    myData.e = false;
+    MksMessage message;
+    message.from = receiverAddress;
+    message.id = 1;
+    message.numValues = 2;
+    message.values = new MksSensorValue[2];
+    message.values[0] = distanceReading.distance;
+    message.values[1] = distanceReading.temperature;
 
-    if(myData.b >= 10) {
-      myData.b = 0;
-    }
-
-    myData.b = distanceReading.distance;
-    sender.send(myData);
+    sender.send(message);
   }
 
 }

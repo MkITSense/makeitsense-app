@@ -1,20 +1,22 @@
  #include <SoftwareSerial.h>
+#include "MksMessage.h"
 
 class MksMe007DistanceReader {
     public:
         struct Reading {
-            int distance; // in centimeters
-            float temperature;
+            MksSensorValue distance; // in centimeters
+            MksSensorValue temperature;
         };
 
+        bool VERBOSE;
         int TRIGGER_PIN;
-        int RX_PIN;
-        int TX_PIN;
+        int RX_PIN; 
+        const int TX_PIN = 0; // not used and not connected
 
-        MksMe007DistanceReader(int triggerPin, int rxPin, int txPin)     {
+        MksMe007DistanceReader(int triggerPin, int rxPin, bool verbose)     {
             TRIGGER_PIN = triggerPin;
             RX_PIN = rxPin;
-            TX_PIN = txPin;
+            VERBOSE = verbose;
         }
 
         Reading getReading() {
@@ -25,8 +27,7 @@ class MksMe007DistanceReader {
                 delay(50);
                 reading = _readSensor();
                 attempts--;
-                Serial.println("attempt " + String(attempts));
-            } while(attempts >= 0 && reading.distance == 0);
+            } while(attempts >= 0 && reading.distance.value == 0);
 
             return reading;          
         }
@@ -89,7 +90,28 @@ class MksMe007DistanceReader {
             }
 
             Rage = round(Rage/10);    
-            Serial.print("Rage : ");
+            
+            if(VERBOSE == true) {
+                _printReading(Rage, Tflag, Temp);
+            }
+
+            Reading reading;
+            
+            reading.distance.type = DISTANCE;
+            reading.distance.units = CENTIMETERS;
+            reading.distance.variable = WATER;
+            reading.distance.value = Rage;
+
+            reading.temperature.type = TEMPERATURE;
+            reading.temperature.units = CELSIUS;
+            reading.temperature.variable = WATER;
+            reading.temperature.value = Temp;
+
+            return reading;
+        }
+
+        void _printReading(int Rage, int Tflag, float Temp) {
+                        Serial.print("Rage : ");
             Serial.print(Rage);//Output distance unit mm
             Serial.println("cm");
             Serial.print("Temperature: ");
@@ -101,11 +123,5 @@ class MksMe007DistanceReader {
             Serial.print(Temp);//Output temperature
             Serial.println("℃");
             Serial.println("============================== ");
-
-            Reading reading;
-            reading.distance = Rage;
-            reading.temperature = Temp;
-       
-            return reading;
         }
 };

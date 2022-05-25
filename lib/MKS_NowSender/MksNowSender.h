@@ -1,14 +1,8 @@
 #include <espnow.h>
+#include "MksMessage.h"
 
 class MksNowSender {
     public:
-        struct Message {
-            char a[32];
-            int b;
-            float c;
-            String d;
-            bool e;
-        };
        
        MksNowSender(uint8_t *receiverMacAddress) {
                 _peerAddress = receiverMacAddress;
@@ -25,7 +19,7 @@ class MksNowSender {
             esp_now_add_peer(_peerAddress, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
         }
 
-        void send(Message message) {
+        void send(MksMessage message) {
             esp_now_send(_peerAddress, (uint8_t *) &message, sizeof(message));
         }
 
