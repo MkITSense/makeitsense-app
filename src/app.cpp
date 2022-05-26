@@ -1,56 +1,68 @@
-#include <ESP8266WiFi.h>
-#include <espnow.h>
-#include "MksMe007DistanceReader.h"
-#include "MksClock.h"
-#include "MksNowSender.h"
-#include "MksMessage.h"
+#include <esp_now.h>
+#include <WiFi.h>
 
-MksMe007DistanceReader distanceReader(5, 13, true);
-MksClock distanceReaderClock;
+#include <MKS_Display.h>
 
-// REPLACE WITH RECEIVER MAC Address
-uint8_t receiverAddress[] = {0x24, 0x6F, 0x28, 0x44, 0xE6, 0xB8}; // ESP32 LilyGo
+MKS_Display display;
+int myNum = 0;
 
-MksNowSender sender(receiverAddress);
-MksMessage message;
+// Structure example to receive data
+// Must match the sender structure
+typedef struct struct_message {
+    char a[32];
+    int b;
+    float c;
+    bool d;
+} struct_message;
 
-// Callback when data is sent
-void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
-  Serial.print("Last Packet Send Status: ");
-  if (sendStatus == 0){
-    Serial.println("Delivery success");
-  }
-  else{
-    Serial.println("Delivery fail");
-  }
+// Create a struct_message called myData
+struct_message myData;
+
+void updateDisplay() {
+    display.clear();
+    display.print(String(myNum), 1, 5);
+    display.updateProgressBar();
+    display.show();
+}
+
+// callback function that will be executed when data is received
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&myData, incomingData, sizeof(myData));
+  Serial.print("Bytes received: ");
+  Serial.println(len);
+  Serial.print("Char: ");
+  Serial.println(myData.a);
+  Serial.print("Int: ");
+  Serial.println(myData.b);
+  Serial.print("Float: ");
+  Serial.println(myData.c);
+  Serial.print("Bool: ");
+  Serial.println(myData.d);
+  Serial.println();
+   myNum = myData.b;
 }
  
 void setup() {
-  // Init Serial Monitor
+  // Initialize Serial Monitor
   Serial.begin(115200);
-
+  
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
+  Serial.println(WiFi.macAddress());
 
-  sender.start(OnDataSent);
-  distanceReaderClock.start();
+  display.start();
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+  
+  // Once ESPNow is successfully Init, we will register for recv CB to
+  // get recv packer info
+  esp_now_register_recv_cb(OnDataRecv);
 }
  
 void loop() {
-
-  if(distanceReaderClock.getSeconds() >= 2) {
-    MksMe007DistanceReader::Reading distanceReading = distanceReader.getReading();
-    distanceReaderClock.start();
-
-    MksMessage message;
-    message.from = receiverAddress;
-    message.id = 1;
-    message.numValues = 2;
-    message.values = new MksSensorValue[2];
-    message.values[0] = distanceReading.distance;
-    message.values[1] = distanceReading.temperature;
-
-    sender.send(message);
-  }
-
+   updateDisplay();
+    delay(200);
 }
