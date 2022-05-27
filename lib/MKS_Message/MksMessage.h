@@ -1,31 +1,31 @@
 #ifndef MksSensorValue_h
 #define MksSensorValue_h
 
-struct MksSensorValue {
-    int type;
-    int variable;
+struct MksReading {
+    int sensorType;
+    int unit;
+    int unitType;
     float value;
-    int units;
 };
 
 struct MksMessage {
-    uint8_t *from;
+    uint8_t from[6];
     int id;
-    int numValues;
-    MksSensorValue *values;
+    int numReadings;
+    MksReading readings[4];
 };
 
-enum MksDataType {
+enum MksReadingUnitType {
     TEMPERATURE = 0,
     DISTANCE = 1,
-    PERCENTAJE = 2,
 };
 
-enum MksVariableType {
-    WATER = 0,
+enum MksSensorType {
+    WATER_LEVEL = 0,
+    WATER_TANK = 1,
 };
 
-enum MksValueUnit {
+enum MksReadingUnit {
     CENTIMETERS = 0,
     CELSIUS = 1,
 };

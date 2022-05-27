@@ -2,14 +2,14 @@
 #include <espnow.h>
 #include "MksMe007DistanceReader.h"
 #include "MksClock.h"
-#include "MksNowSender.h"
+#include "MksEspNow.h"
 #include "MksMessage.h"
 #include "GfNodes.h"
 
 const int REFRESH_TIME = 10 // time in seconds
 MksMe007DistanceReader distanceReader(5, 13, true);
 MksClock distanceReaderClock;
-MksNowSender sender(MAIN_NODE);
+MksEspNow expNowSender();
 MksMessage message;
  
 void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
@@ -34,14 +34,14 @@ void sendData() {
     message.values[0] = distanceReading.distance;
     message.values[1] = distanceReading.temperature;
 
-    sender.send(message);
+    mksNowSender.send(message);
 } 
  
 void setup() {
   Serial.begin(115200);
 
   WiFi.mode(WIFI_STA);
-  sender.start(OnDataSent);
+  mksNowSender = new MksEspNow(MAIN_NODE, OnDataSent);
   distanceReaderClock.start();
 }
  
