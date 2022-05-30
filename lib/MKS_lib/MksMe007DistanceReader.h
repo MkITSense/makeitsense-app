@@ -4,8 +4,8 @@
 class MksMe007DistanceReader {
     public:
         struct Reading {
-            MksSensorValue distance; // in centimeters
-            MksSensorValue temperature;
+            MksReading distance; // in centimeters
+            MksReading temperature;
         };
 
         bool VERBOSE;
@@ -97,14 +97,14 @@ class MksMe007DistanceReader {
 
             Reading reading;
             
-            reading.distance.type = DISTANCE;
-            reading.distance.units = CENTIMETERS;
-            reading.distance.variable = WATER;
+            reading.distance.unitType = DISTANCE;
+            reading.distance.unit = CENTIMETERS;
+            reading.distance.sensorType = WATER_LEVEL;
             reading.distance.value = Rage;
 
-            reading.temperature.type = TEMPERATURE;
-            reading.temperature.units = CELSIUS;
-            reading.temperature.variable = WATER;
+            reading.temperature.unitType = TEMPERATURE;
+            reading.temperature.unit = CELSIUS;
+            reading.temperature.sensorType= WATER_TANK;
             reading.temperature.value = Temp;
 
             return reading;

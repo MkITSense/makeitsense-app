@@ -2,14 +2,14 @@
 #include <espnow.h>
 #include "MksMe007DistanceReader.h"
 #include "MksClock.h"
-#include "MksEspNow.h"
+#include "MksEsp8266Now.h"
 #include "MksMessage.h"
 #include "GfNodes.h"
 
-const int REFRESH_TIME = 10 // time in seconds
-MksMe007DistanceReader distanceReader(5, 13, true);
+GfNode RECEIVER_NODE = GF_NODES[MAIN_NODE];
+const int REFRESH_TIME = 10; // time in seconds
+MksMe007DistanceReader distanceReader(4, 13, true);
 MksClock distanceReaderClock;
-MksEspNow expNowSender();
 MksMessage message;
  
 void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
@@ -22,34 +22,28 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
   }
 }
 
+MksEsp8266Now espNowSender(RECEIVER_NODE.macAddress, OnDataSent);
+
 void sendData() {
     MksMe007DistanceReader::Reading distanceReading = distanceReader.getReading();
     distanceReaderClock.start();
 
-    MksMessage message;
-    message.from = MAIN_NODE;
-    message.id = 1;
-    message.numValues = 2;
-    message.values = new MksSensorValue[2];
-    message.values[0] = distanceReading.distance;
-    message.values[1] = distanceReading.temperature;
+    message.from = RECEIVER_NODE.id;
+    message.values[0] = distanceReading.distance.value;
+    message.values[1] = distanceReading.temperature.value;
 
-    mksNowSender.send(message);
+    espNowSender.send(message);
 } 
  
 void setup() {
   Serial.begin(115200);
-
   WiFi.mode(WIFI_STA);
-  mksNowSender = new MksEspNow(MAIN_NODE, OnDataSent);
+  wifi_set_sleep_type(LIGHT_SLEEP_T);
   distanceReaderClock.start();
+  Serial.println(WiFi.macAddress());
 }
  
 void loop() {
-
-  if(distanceReaderClock.getSeconds() >= REFRESH_TIME) {
     sendData();
-  }
-
-  ESP.deepSleep(10e6);
+    delay(10000);
 }

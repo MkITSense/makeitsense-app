@@ -9,10 +9,8 @@ struct MksReading {
 };
 
 struct MksMessage {
-    uint8_t from[6];
-    int id;
-    int numReadings;
-    MksReading readings[4];
+    int from;
+    float values[4];
 };
 
 enum MksReadingUnitType {
