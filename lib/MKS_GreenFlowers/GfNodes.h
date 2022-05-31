@@ -1,7 +1,6 @@
 #ifndef GFNodes_h
 #define GFNodes_h
 
-
 class GfNode {
     public:
         uint8_t macAddress[6];
@@ -21,7 +20,7 @@ class GfNode {
 };
 
 const uint8_t MAIN_NODE_ADDRESS[] = {0x24, 0x6F, 0x28, 0x44, 0xE6, 0xB8}; // ESP32 LilyGo
-const uint8_t DEEP_WELL_NODE_ADDRESS[] = {0x5C};
+const uint8_t DEEP_WELL_NODE_ADDRESS[] = {0x18, 0xFE, 0x34, 0xF1, 0x76, 0xB9};
 const uint8_t MAIN_WATER_TANK_NODE_ADDRESS[] = {0x5C, 0xCF, 0x7F, 0x8C, 0x8D, 0xAE};
 
 enum GfNodesId {
@@ -32,7 +31,7 @@ enum GfNodesId {
 
 GfNode GF_NODES[] ={
         GfNode(MAIN_NODE, "Broker Principal", MAIN_NODE_ADDRESS),
-        GfNode(DEEP_WEELL_NODE, "Pozo Profundo", DEEP_WELL_NODE_ADDRESS)
+        GfNode(DEEP_WEELL_NODE, "Pozo Profundo", DEEP_WELL_NODE_ADDRESS),
         GfNode(MAIN_WATER__TANK, "Tanque Principal", MAIN_WATER_TANK_NODE_ADDRESS),
     };
 

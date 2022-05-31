@@ -1,18 +1,17 @@
-#ifndef MKS_Display_h
-#define MKS_Display_h
+#ifndef MksDisplay_h
+#define MksDisplay_h
 
 #include "Arduino.h"
-#include "MKS_Display.h"
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-        const int SCREEN_WIDTH = 128;    // OLED display width, in pixels
-        const int SCREEN_HEIGHT = 32;    // OLED display height, in pixels
-        const int OLED_RESET = -1;       // Reset pin # (or -1 if sharing Arduino reset pin)
-        const int SCREEN_ADDRESS = 0x3C; ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-        Adafruit_SSD1306 _Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+const int SCREEN_WIDTH = 128;    // OLED display width, in pixels
+const int SCREEN_HEIGHT = 32;    // OLED display height, in pixels
+const int OLED_RESET = -1;       // Reset pin # (or -1 if sharing Arduino reset pin)
+const int SCREEN_ADDRESS = 0x3C; ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 _Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 class MksDisplay {
     public:

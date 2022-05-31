@@ -1,11 +1,11 @@
 #include <espnow.h>
 #include "MksMessage.h"
 
-class MksEsp32NowReceiver {
+class MksEspNowReceiver {
     public:
-        MksEsp32NowReceiver() {}
+        MksEspNowReceiver() {}
 
-        void start(void (*onDataReceived)(const uint8_t *, const uint8_t *, int)) {
+        void start(void (*onDataReceived)(uint8_t *, uint8_t *,  uint8_t)) {
             _init();
             _initReceiver(onDataReceived);
         }
@@ -27,7 +27,7 @@ class MksEsp32NowReceiver {
             return true;
         }
 
-        void _initReceiver(void (*onDataReceived)(const uint8_t *, const uint8_t *, int)) {
+        void _initReceiver(void (*onDataReceived)(uint8_t *, uint8_t *, uint8_t)) {
             esp_now_register_recv_cb(onDataReceived);
             _isReceiver = true;
         }

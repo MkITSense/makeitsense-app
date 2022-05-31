@@ -2,11 +2,12 @@
 #include <espnow.h>
 #include "MksMe007DistanceReader.h"
 #include "MksClock.h"
-#include "MksEsp8266NowReceiver.h"
+#include "MksEspNowSender.h"
 #include "MksMessage.h"
+#include "MksUnits.h"
 #include "GfNodes.h"
 
-GfNode RECEIVER_NODE = GF_NODES[MAIN_NODE];
+GfNode RECEIVER_NODE = GF_NODES[DEEP_WEELL_NODE];
 const int REFRESH_TIME = 10; // time in seconds
 MksMe007DistanceReader distanceReader(4, 13, true);
 MksClock distanceReaderClock;
