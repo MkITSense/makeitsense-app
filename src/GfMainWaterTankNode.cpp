@@ -2,7 +2,7 @@
 #include <espnow.h>
 #include "MksMe007DistanceReader.h"
 #include "MksClock.h"
-#include "MksEsp8266Now.h"
+#include "MksEsp8266NowReceiver.h"
 #include "MksMessage.h"
 #include "GfNodes.h"
 
@@ -22,7 +22,7 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
   }
 }
 
-MksEsp8266Now espNowSender(RECEIVER_NODE.macAddress, OnDataSent);
+MksEspNowSender espNowSender(RECEIVER_NODE.macAddress, OnDataSent);
 
 void sendData() {
     MksMe007DistanceReader::Reading distanceReading = distanceReader.getReading();

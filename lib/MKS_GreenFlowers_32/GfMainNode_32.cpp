@@ -1,7 +1,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <MksDisplay.h>
-#include "MksEsp32Now.h"
+#include "MksEsp32NowReceiver.h"
 
 MksDisplay display;
 
@@ -22,7 +22,7 @@ void onDataReceived(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(message.readings[0].value);
 }
  
- MksEsp32Now espNowReceiver;
+ MksEsp32NowReceiver espNowReceiver;
  
 void setup() {
   Serial.begin(115200);
