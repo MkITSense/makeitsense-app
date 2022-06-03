@@ -10,7 +10,7 @@ class Temperature {
         }
 
         String getCelsiusAsString() {
-            return String(_celsius) + "ºC";
+            return String(_celsius) + "C";
         }
 
     private:
@@ -48,25 +48,30 @@ class Cube {
 
         void setCurrentLevelCm(int sensorReadingCm) {
             _currentLevelCm = _heightCm - (sensorReadingCm - _sensorZeroCm);
+            Serial.println("Current Level: " + String(_currentLevelCm));
         }
 
         int getMaxVolumeM3() {
+                             Serial.println("Max: " + String(_getVolumeM3(_heightCm)) + " : " + String(_heightCm));
             return _getVolumeM3(_heightCm);
         }
 
         int getCurrentVolumeM3() {
+                 Serial.println("Current: " + String(_getVolumeM3(_currentLevelCm)) +  " : " + String(_currentLevelCm));
+       
             return _getVolumeM3(_currentLevelCm);
         } 
 
-        int getMaxVolumeLts() {
+        float getMaxVolumeLts() {
             return _getVolumeLts(_heightCm);
         }
 
-        int getCurrentVolumeLts() {
+        float getCurrentVolumeLts() {
             return _getVolumeLts(_currentLevelCm);
         }
 
-        int getFillPercentage() {
+        float getFillPercentage() {
+       
             return (getCurrentVolumeLts() / getMaxVolumeLts()) * 100;
         }
 
@@ -75,7 +80,7 @@ class Cube {
         }
 
         String getFillPercentageAsString() {
-            return String(getFillPercentage()) + "%";
+            return String((int)getFillPercentage()) + "%";
         }
 
     private:
@@ -86,12 +91,13 @@ class Cube {
         int _sensorZeroCm;
         int _sensorReadingCm;
 
-        int _getVolumeM3(int height) {
-            return (_widthCm /100) * (_lengthCm/100) * (_heightCm/100);
+        float _getVolumeM3(int height) {
+      
+            return (_widthCm /100.0) * (_lengthCm/100.0) * (height/100.0);
         }
 
-        int _getVolumeLts(int height) {
-            return _getVolumeM3(height) * 1000;
+        float _getVolumeLts(int height) {
+            return _getVolumeM3(height) * 1000.0;
         }
 };
 

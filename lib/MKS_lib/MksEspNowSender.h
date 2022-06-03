@@ -3,7 +3,8 @@
 
 class MksEspNowSender {
     public:      
-        MksEspNowSender(const uint8_t receiverMacAddress[], void (*onDataSent)(uint8_t *mac_addr, uint8_t sendStatus)) {
+        MksEspNowSender(const uint8_t receiverMacAddress[], void (*onDataSent)(uint8_t *mac_addr, uint8_t sendStatus), bool verbose) {
+            _verbose = verbose;
             _init();
             _initSender(receiverMacAddress, onDataSent);
         }
@@ -11,12 +12,15 @@ class MksEspNowSender {
         void send(MksMessage message) {
             if(_isSender == true) {
 
-                Serial.print("Receiver: ");
-                Serial.println((char*)_receiverMacAddress);
-                Serial.print("From: ");
-                Serial.println(message.from);
-                Serial.print("id: ");
-                Serial.println(message.values[0]);
+                if(_verbose == true) {
+                    Serial.print("Receiver: ");
+                    Serial.println((char*)_receiverMacAddress);
+                    Serial.print("From: ");
+                    Serial.println(message.from);
+                    Serial.print("id: ");
+                    Serial.println(message.values[0]);
+                }
+    
                 esp_now_send(_receiverMacAddress, (uint8_t *) &message, sizeof(message));
             }
         }
@@ -25,13 +29,18 @@ class MksEspNowSender {
         uint8_t _receiverMacAddress[6];
         bool _isReceiver;
         bool _isSender;
+        bool _verbose;
 
         bool _init() {
             _isReceiver = false;
             _isSender = false; 
 
             if (esp_now_init() != 0) {
-                Serial.println("Error initializing ESP-NOW");
+
+                if(_verbose == true) {
+                    Serial.println("Error initializing ESP-NOW");
+                }
+                
                 return false;
             }
 

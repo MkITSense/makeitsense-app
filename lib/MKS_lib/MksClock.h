@@ -1,3 +1,6 @@
+#ifndef MksClock_h
+#define MksClock_h
+
 class MksClock {
     public:
         const int STOPED = 0;
@@ -93,3 +96,5 @@ class MksClock {
             return String(result);
         }
 };
+
+#endif

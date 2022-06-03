@@ -26,13 +26,13 @@ const uint8_t MAIN_WATER_TANK_NODE_ADDRESS[] = {0x5C, 0xCF, 0x7F, 0x8C, 0x8D, 0x
 enum GfNodesId {
     MAIN_NODE = 0,
     DEEP_WEELL_NODE = 1,
-    MAIN_WATER__TANK = 2,
+    MAIN_WATER_TANK_NODE = 2,
 };
 
 GfNode GF_NODES[] ={
         GfNode(MAIN_NODE, "Broker Principal", MAIN_NODE_ADDRESS),
         GfNode(DEEP_WEELL_NODE, "Pozo Profundo", DEEP_WELL_NODE_ADDRESS),
-        GfNode(MAIN_WATER__TANK, "Tanque Principal", MAIN_WATER_TANK_NODE_ADDRESS),
+        GfNode(MAIN_WATER_TANK_NODE, "Tanque Principal", MAIN_WATER_TANK_NODE_ADDRESS),
     };
 
 #endif
